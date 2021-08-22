@@ -1,8 +1,8 @@
+import json
 from django.http import JsonResponse
 from django.templatetags.static import static
 
-
-from .models import Product
+from .models import Product, Order, OrderItem
 
 
 def banners_list_api(request):
@@ -58,5 +58,22 @@ def product_list_api(request):
 
 
 def register_order(request):
-    # TODO это лишь заглушка
+    try:
+        request_parameters = json.loads(request.body.decode())
+    except ValueError:
+        return JsonResponse({
+            'error': 'Не верный формат данных заказа',
+        })
+    order = Order.objects.create(
+        firstname=request_parameters['firstname'],
+        lastname=request_parameters['lastname'],
+        phonenumber=request_parameters['phonenumber'],
+        address=request_parameters['address']
+    )
+    for item_parameters in request_parameters['products']:
+        order_item = OrderItem.objects.create(
+            order=order,
+            product=Product.objects.get(pk=item_parameters['product']),
+            quantity=item_parameters['quantity']
+        )
     return JsonResponse({})

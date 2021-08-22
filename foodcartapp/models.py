@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Restaurant(models.Model):
@@ -121,3 +122,32 @@ class RestaurantMenuItem(models.Model):
 
     def __str__(self):
         return f"{self.restaurant.name} - {self.product.name}"
+
+
+class Order(models.Model):
+    id = models.AutoField(verbose_name='№', primary_key = True)
+    firstname = models.CharField('имя', max_length=50)
+    lastname = models.CharField('фамилия', max_length=100)
+    phonenumber = PhoneNumberField('номер телефона')
+    address = models.CharField('адрес', max_length=500)
+    created = models.DateTimeField('дата создания', auto_now_add=True, db_index=True)
+
+    def __str__(self):
+        return f'№{self.id} - {self.lastname} {self.phonenumber}'
+
+    class Meta():
+        verbose_name = 'заказ'
+        verbose_name_plural = 'заказы'
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items', verbose_name='заказ')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items', verbose_name='товар')
+    quantity = models.SmallIntegerField('количество', validators=[MinValueValidator(1)])
+
+    def __str__(self):
+        return f'заказ {self.order.id} - {self.product}: {self.quantity}'
+
+    class Meta():
+        verbose_name = 'пункт заказа'
+        verbose_name_plural = 'пункты заказа'
