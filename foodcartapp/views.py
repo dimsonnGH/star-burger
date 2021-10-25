@@ -63,9 +63,19 @@ def register_order(request):
     try:
         request_parameters = json.loads(request.body.decode())
     except ValueError:
-        return JsonResponse({
+        return Response({
             'error': 'Не верный формат данных заказа',
         })
+
+    if not 'products' in request_parameters:
+        return Response({'error': 'products key is not presented'})
+
+    if not isinstance(request_parameters['products'], list):
+        return Response({'error': 'products key is not a list'})
+
+    if len(request_parameters['products']) == 0:
+        return Response({'error': 'products key is empty'})
+
     order = Order.objects.create(
         firstname=request_parameters['firstname'],
         lastname=request_parameters['lastname'],
