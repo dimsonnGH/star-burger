@@ -4,6 +4,7 @@ from django.templatetags.static import static
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Product, Order, OrderItem
+import phonenumbers
 
 
 def banners_list_api(request):
@@ -67,14 +68,38 @@ def register_order(request):
             'error': 'Не верный формат данных заказа',
         })
 
-    if not 'products' in request_parameters:
-        return Response({'error': 'products key is not presented'})
+    required_params = 'products,firstname,lastname,phonenumber,address'.split(',')
+    invalid_params = [param for param in required_params if not param in request_parameters]
+    if invalid_params:
+        return Response({'error': f'{", ".join(invalid_params)} keys is not presented'})
 
-    if not isinstance(request_parameters['products'], list):
-        return Response({'error': 'products key is not a list'})
+    type_checking_list = [
+        (list, 'products'),
+        (str, 'firstname,lastname,phonenumber,address')
+    ]
+    for checking_type, str_checking_params in type_checking_list:
+        checking_params = str_checking_params.split(',')
+        invalid_params = [param for param in checking_params if
+                          not isinstance(request_parameters[param], checking_type)]
+        if invalid_params:
+            return Response({'error': f'{", ".join(invalid_params)} keys is not a {checking_type}'})
 
-    if len(request_parameters['products']) == 0:
-        return Response({'error': 'products key is empty'})
+    invalid_params = [param for param in required_params if not request_parameters[param]]
+    if invalid_params:
+        return Response({'error': f'{", ".join(invalid_params)} keys is empty'})
+
+    phonenumber = request_parameters['phonenumber']
+    parced_phonenumber = phonenumbers.parse(phonenumber, 'RU')
+    if not phonenumbers.is_valid_number(parced_phonenumber):
+        return Response({'error': f'{phonenumber} keys is not valid phone number'})
+
+    for item_parameters in request_parameters['products']:
+        product_id = item_parameters['product']
+        try:
+            product = Product.objects.get(pk=product_id)
+        except Product.DoesNotExist:
+            return Response({'error': f'Product with {product_id} id is not exists'})
+        item_parameters['product_object'] = product
 
     order = Order.objects.create(
         firstname=request_parameters['firstname'],
@@ -85,7 +110,7 @@ def register_order(request):
     for item_parameters in request_parameters['products']:
         order_item = OrderItem.objects.create(
             order=order,
-            product=Product.objects.get(pk=item_parameters['product']),
+            product=item_parameters['product_object'],
             quantity=item_parameters['quantity']
         )
     return Response({})
