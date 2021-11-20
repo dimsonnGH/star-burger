@@ -71,7 +71,7 @@ def register_order(request):
     required_params = 'products,firstname,lastname,phonenumber,address'.split(',')
     invalid_params = [param for param in required_params if not param in request_parameters]
     if invalid_params:
-        return Response({'error': f'{", ".join(invalid_params)} keys is not presented'})
+        return Response({'error': f'{", ".join(invalid_params)} keys is not presented'}, status=400)
 
     type_checking_list = [
         (list, 'products'),
@@ -82,16 +82,16 @@ def register_order(request):
         invalid_params = [param for param in checking_params if
                           not isinstance(request_parameters[param], checking_type)]
         if invalid_params:
-            return Response({'error': f'{", ".join(invalid_params)} keys is not a {checking_type}'})
+            return Response({'error': f'{", ".join(invalid_params)} keys is not a {checking_type}'}, status=400)
 
     invalid_params = [param for param in required_params if not request_parameters[param]]
     if invalid_params:
-        return Response({'error': f'{", ".join(invalid_params)} keys is empty'})
+        return Response({'error': f'{", ".join(invalid_params)} keys is empty'}, status=400)
 
     phonenumber = request_parameters['phonenumber']
     parced_phonenumber = phonenumbers.parse(phonenumber, 'RU')
     if not phonenumbers.is_valid_number(parced_phonenumber):
-        return Response({'error': f'{phonenumber} keys is not valid phone number'})
+        return Response({'error': f'{phonenumber} keys is not valid phone number'}, status=400)
 
     for item_parameters in request_parameters['products']:
         product_id = item_parameters['product']
