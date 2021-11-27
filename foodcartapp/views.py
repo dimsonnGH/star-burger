@@ -65,7 +65,7 @@ class OrderItemSerializer(ModelSerializer):
 
 
 class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(many=True, source='order_items', allow_empty=False)
+    products = OrderItemSerializer(many=True, source='order_items', allow_empty=False, write_only=True)
 
     class Meta:
         model = Order
@@ -86,4 +86,6 @@ def register_order(request):
     for item_parameters in serializer.validated_data['order_items']:
         order_item = OrderItem.objects.create(order=order, **item_parameters)
 
-    return Response({})
+    responce_serializer = OrderSerializer(instance=order)
+
+    return Response(responce_serializer.data)
