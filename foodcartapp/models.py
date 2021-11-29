@@ -125,12 +125,20 @@ class RestaurantMenuItem(models.Model):
 
 
 class Order(models.Model):
+
+    ORDER_STATUS_CHOICES = [
+        ('NEW', 'Новый'),
+        ('CLOSED', 'Закрыт')
+    ]
+
     id = models.AutoField(verbose_name='№', primary_key = True)
     firstname = models.CharField('имя', max_length=50)
     lastname = models.CharField('фамилия', max_length=100)
     phonenumber = PhoneNumberField('номер телефона')
     address = models.CharField('адрес', max_length=500)
     created = models.DateTimeField('дата создания', auto_now_add=True, db_index=True)
+    status = models.CharField(max_length=15, choices=ORDER_STATUS_CHOICES, default='NEW',
+                              db_index=True, verbose_name='Статус заказа')
 
     def __str__(self):
         return f'№{self.id} - {self.lastname} {self.phonenumber}'
