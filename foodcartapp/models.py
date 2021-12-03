@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum, F
 from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -31,8 +32,8 @@ class ProductQuerySet(models.QuerySet):
     def available(self):
         products = (
             RestaurantMenuItem.objects
-            .filter(availability=True)
-            .values_list('product')
+                .filter(availability=True)
+                .values_list('product')
         )
         return self.filter(pk__in=products)
 
@@ -124,14 +125,19 @@ class RestaurantMenuItem(models.Model):
         return f"{self.restaurant.name} - {self.product.name}"
 
 
-class Order(models.Model):
+class OrderQuerySet(models.QuerySet):
+    def orders_with_price(self):
+        orders = self.annotate(order_sum=Sum(F('order_items__quantity') * F('order_items__product__price')))
+        return orders
 
+
+class Order(models.Model):
     ORDER_STATUS_CHOICES = [
         ('NEW', 'Новый'),
         ('CLOSED', 'Закрыт')
     ]
 
-    id = models.AutoField(verbose_name='№', primary_key = True)
+    id = models.AutoField(verbose_name='№', primary_key=True)
     firstname = models.CharField('имя', max_length=50)
     lastname = models.CharField('фамилия', max_length=100)
     phonenumber = PhoneNumberField('номер телефона')
@@ -139,6 +145,7 @@ class Order(models.Model):
     created = models.DateTimeField('дата создания', auto_now_add=True, db_index=True)
     status = models.CharField(max_length=15, choices=ORDER_STATUS_CHOICES, default='NEW',
                               db_index=True, verbose_name='Статус заказа')
+    objects = OrderQuerySet.as_manager()
 
     def __str__(self):
         return f'№{self.id} - {self.lastname} {self.phonenumber}'
