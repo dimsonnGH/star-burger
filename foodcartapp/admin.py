@@ -121,6 +121,7 @@ class OrderItemInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'status', 'lastname', 'firstname', 'phonenumber', 'created')
     list_display_links = ('id',)
+    #readonly_fields = ('created',)
     inlines = [
         OrderItemInline,
     ]
