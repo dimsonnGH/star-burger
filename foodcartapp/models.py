@@ -145,6 +145,7 @@ class Order(models.Model):
     created = models.DateTimeField('дата создания', auto_now_add=True, db_index=True)
     status = models.CharField(max_length=15, choices=ORDER_STATUS_CHOICES, default='NEW',
                               db_index=True, verbose_name='Статус заказа')
+    comment = models.TextField('комментарий', blank=True)
     objects = OrderQuerySet.as_manager()
 
     def __str__(self):
