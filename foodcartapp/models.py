@@ -137,6 +137,10 @@ class Order(models.Model):
         ('NEW', 'Новый'),
         ('CLOSED', 'Закрыт')
     ]
+    ORDER_PAYMENT_METHOD_CHOICES = [
+        ('CARD', 'Картой'),
+        ('CASH', 'Наличными')
+    ]
 
     id = models.AutoField(verbose_name='№', primary_key=True)
     firstname = models.CharField('имя', max_length=50)
@@ -148,6 +152,8 @@ class Order(models.Model):
     delivery_date = models.DateTimeField('дата доставки', blank=True, null=True)
     status = models.CharField(max_length=15, choices=ORDER_STATUS_CHOICES, default='NEW',
                               db_index=True, verbose_name='Статус заказа')
+    payment_method = models.CharField(max_length=15, choices=ORDER_PAYMENT_METHOD_CHOICES, blank=True,
+                                      verbose_name='Способ оплаты')
     comment = models.TextField('комментарий', blank=True)
     objects = OrderQuerySet.as_manager()
 
