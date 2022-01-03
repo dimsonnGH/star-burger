@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, F
 from django.core.validators import MinValueValidator
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
@@ -127,8 +127,29 @@ class RestaurantMenuItem(models.Model):
 
 
 class OrderQuerySet(models.QuerySet):
+    def orders_with_restaurants(self):
+        menu_items = RestaurantMenuItem.objects.select_related('restaurant').all()
+        orders = self.prefetch_related('order_items')
+        for order in orders:
+            order_sum = 0
+            order_restaurants = set()
+            for order_item in order.order_items.all():
+                order_sum += order_item.price * order_item.quantity
+                item_restaurants = []
+                for menu_item in menu_items:
+                    if menu_item.product_id == order_item.product_id and menu_item.availability:
+                        item_restaurants.append(menu_item.restaurant)
+                if order_restaurants:
+                    order_restaurants = order_restaurants & set(item_restaurants)
+                else:
+                    order_restaurants = set(item_restaurants)
+            order.order_sum = order_sum
+            order.restaurants = order_restaurants
+
+        return orders
+
     def orders_with_price(self):
-        orders = self.annotate(order_sum=Sum('order_items__price'))
+        orders = self.annotate(order_sum=Sum(F('order_items__price') * F('order_items__quantity')))
         return orders
 
 
@@ -155,6 +176,8 @@ class Order(models.Model):
     payment_method = models.CharField(max_length=15, choices=ORDER_PAYMENT_METHOD_CHOICES, blank=True,
                                       verbose_name='Способ оплаты')
     comment = models.TextField('комментарий', blank=True)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.SET_NULL, verbose_name='ресторан',
+                                   related_name='orders', blank=True, null=True)
     objects = OrderQuerySet.as_manager()
 
     def __str__(self):
