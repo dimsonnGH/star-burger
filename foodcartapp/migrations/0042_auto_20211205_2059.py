@@ -6,14 +6,9 @@ from django.db.models import F
 
 def set_order_item_price(apps, schema_editor):
     OrderItem = apps.get_model('foodcartapp', 'OrderItem')
-    #OrderItem.objects.prefetch_related('product').update(price=F('product_price'))
-    #print(qs.query)
-    #order_items = OrderItem.objects.select_related('product').all()
-
-    # вариант 1
     order_items = OrderItem.objects.select_related('product').iterator()
     for order_item in order_items:
-        order_item.price = order_item.quantity * order_item.product.price
+        order_item.price = order_item.product.price
         order_item.save()
 
 
