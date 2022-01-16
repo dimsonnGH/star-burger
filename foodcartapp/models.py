@@ -5,10 +5,17 @@ from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 from django.conf import settings
 from geopy import distance
+from coordinates.models import Location
 import requests
 
 
 def fetch_coordinates(apikey, address):
+    try:
+        location = Location.objects.only("longitude", "latitude").get(address=address)
+        return location.longitude, location.latitude
+    except Location.DoesNotExist:
+        pass
+
     base_url = "https://geocode-maps.yandex.ru/1.x"
     response = requests.get(base_url, params={
         "geocode": address,
@@ -23,6 +30,7 @@ def fetch_coordinates(apikey, address):
 
     most_relevant = found_places[0]
     lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+    Location.objects.create(address=address, longitude=lon, latitude=lat)
     return lon, lat
 
 
@@ -185,10 +193,6 @@ class OrderQuerySet(models.QuerySet):
 
             order.restaurants = sorted(restaurants_with_distance, key=lambda item: item[1])
 
-        return orders
-
-    def orders_with_price(self):
-        orders = self.annotate(order_sum=Sum(F('order_items__price') * F('order_items__quantity')))
         return orders
 
 
