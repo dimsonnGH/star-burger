@@ -206,10 +206,11 @@ class Order(models.Model):
         ('CASH', 'Наличными')
     ]
 
+    # переопределяем поле id, чтобы установить свой заголовок в админке
     id = models.AutoField(verbose_name='№', primary_key=True)
     firstname = models.CharField('имя', max_length=50)
     lastname = models.CharField('фамилия', max_length=100)
-    phonenumber = PhoneNumberField('номер телефона')
+    phonenumber = PhoneNumberField('номер телефона', db_index=True)
     address = models.CharField('адрес', max_length=500)
     created = models.DateTimeField('дата создания', default=timezone.now, db_index=True)
     call_date = models.DateTimeField('дата звонка', blank=True, null=True)
