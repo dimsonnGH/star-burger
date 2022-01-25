@@ -165,7 +165,7 @@ class RestaurantMenuItem(models.Model):
 
 class OrderQuerySet(models.QuerySet):
     def orders_with_restaurants(self):
-        menu_items = RestaurantMenuItem.objects.select_related('restaurant').all()
+        menu_items = RestaurantMenuItem.objects.select_related('restaurant').filter(availability=True)
         orders = self.prefetch_related('order_items')
         coordinates_cashe = {}
         for order in orders:
@@ -177,7 +177,7 @@ class OrderQuerySet(models.QuerySet):
             for order_item in order_items:
                 order.order_sum = order.order_sum + order_item.price * order_item.quantity
                 item_restaurants = [menu_item.restaurant for menu_item in menu_items if
-                                    menu_item.product_id == order_item.product_id and menu_item.availability]
+                                    menu_item.product_id == order_item.product_id]
                 if order_restaurants:
                     order_restaurants = order_restaurants & set(item_restaurants)
                 else:
