@@ -175,7 +175,7 @@ class OrderQuerySet(models.QuerySet):
             order_address_coordinates = get_address_coordinates(coordinates_cashe, order.address)
             order_items = order.order_items.all()
             for order_item in order_items:
-                order.order_sum = order.order_sum + order_item.price * order_item.quantity
+                order.order_sum += order_item.price * order_item.quantity
                 item_restaurants = [menu_item.restaurant for menu_item in menu_items if
                                     menu_item.product_id == order_item.product_id]
                 if order_restaurants:
