@@ -167,12 +167,12 @@ class OrderQuerySet(models.QuerySet):
     def orders_with_restaurants(self):
         menu_items = RestaurantMenuItem.objects.select_related('restaurant').all()
         orders = self.prefetch_related('order_items')
-        coordinates_dict = {}
+        coordinates_cashe = {}
         for order in orders:
             order_restaurants = set()
             order.order_sum = 0
             restaurants_with_distance = []
-            order_address_coordinates = get_address_coordinates(coordinates_dict, order.address)
+            order_address_coordinates = get_address_coordinates(coordinates_cashe, order.address)
             order_items = order.order_items.all()
             for order_item in order_items:
                 order.order_sum = order.order_sum + order_item.price * order_item.quantity
@@ -184,7 +184,7 @@ class OrderQuerySet(models.QuerySet):
                     order_restaurants = set(item_restaurants)
 
             for restaurant in order_restaurants:
-                restorant_coordinates = get_address_coordinates(coordinates_dict, restaurant.address)
+                restorant_coordinates = get_address_coordinates(coordinates_cashe, restaurant.address)
                 if order_address_coordinates and restorant_coordinates:
                     distance_to = round(distance.distance(restorant_coordinates, order_address_coordinates).km, 2)
                 else:
