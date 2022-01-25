@@ -166,14 +166,14 @@ class RestaurantMenuItem(models.Model):
 class OrderQuerySet(models.QuerySet):
     def orders_with_restaurants(self):
         menu_items = RestaurantMenuItem.objects.select_related('restaurant').filter(availability=True)
-        orders = self.prefetch_related('order_items')
+        orders = self.prefetch_related('items')
         coordinates_cashe = {}
         for order in orders:
             order_restaurants = set()
             order.order_sum = 0
             restaurants_with_distance = []
             order_address_coordinates = get_address_coordinates(coordinates_cashe, order.address)
-            order_items = order.order_items.all()
+            order_items = order.items.all()
             for order_item in order_items:
                 order.order_sum += order_item.price * order_item.quantity
                 item_restaurants = [menu_item.restaurant for menu_item in menu_items if
@@ -234,7 +234,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     """Позиция заказа"""
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items', verbose_name='заказ')
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items', verbose_name='заказ')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_items', verbose_name='товар')
     quantity = models.SmallIntegerField('количество', validators=[MinValueValidator(1)])
     price = models.DecimalField('цена', max_digits=8, decimal_places=2, validators=[MinValueValidator(0)])
