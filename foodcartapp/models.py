@@ -212,9 +212,9 @@ class Order(models.Model):
     lastname = models.CharField('фамилия', max_length=100)
     phonenumber = PhoneNumberField('номер телефона', db_index=True)
     address = models.CharField('адрес', max_length=500)
-    created = models.DateTimeField('дата создания', default=timezone.now, db_index=True)
-    call_date = models.DateTimeField('дата звонка', blank=True, null=True)
-    delivery_date = models.DateTimeField('дата доставки', blank=True, null=True)
+    created_at = models.DateTimeField('дата создания', default=timezone.now, db_index=True)
+    called_at = models.DateTimeField('дата звонка', blank=True, null=True)
+    delivered_at = models.DateTimeField('дата доставки', blank=True, null=True)
     status = models.CharField(max_length=15, choices=ORDER_STATUS_CHOICES, default='NEW',
                               db_index=True, verbose_name='Статус заказа')
     payment_method = models.CharField(max_length=15, choices=ORDER_PAYMENT_METHOD_CHOICES, blank=True,
