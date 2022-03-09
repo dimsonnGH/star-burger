@@ -164,18 +164,20 @@ class RestaurantMenuItem(models.Model):
 
 
 class OrderQuerySet(models.QuerySet):
-    def orders_with_restaurants(self):
+    def calculate_order_sum(self):
+        orders = self.prefetch_related('items').annotate(order_sum=Sum(F('items__quantity') * F('items__price')))
+        return orders
+
+    def include_available_restaurants(self):
         menu_items = RestaurantMenuItem.objects.select_related('restaurant').filter(availability=True)
         orders = self.prefetch_related('items')
         coordinates_cashe = {}
         for order in orders:
             order_restaurants = set()
-            order.order_sum = 0
             restaurants_with_distance = []
             order_address_coordinates = get_address_coordinates(coordinates_cashe, order.address)
             order_items = order.items.all()
             for order_item in order_items:
-                order.order_sum += order_item.price * order_item.quantity
                 item_restaurants = [menu_item.restaurant for menu_item in menu_items if
                                     menu_item.product_id == order_item.product_id]
                 if order_restaurants:
@@ -192,6 +194,7 @@ class OrderQuerySet(models.QuerySet):
                 restaurants_with_distance.append((restaurant, distance_to))
 
             order.restaurants = sorted(restaurants_with_distance, key=lambda item: item[1])
+            order.restaurants_count = len(order.restaurants)
 
         return orders
 
