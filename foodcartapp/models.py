@@ -205,6 +205,7 @@ class Order(models.Model):
         ('CLOSED', 'Закрыт')
     ]
     ORDER_PAYMENT_METHOD_CHOICES = [
+        ('UNDEFINED', 'Не известен'),
         ('CARD', 'Картой'),
         ('CASH', 'Наличными')
     ]
@@ -220,8 +221,8 @@ class Order(models.Model):
     delivered_at = models.DateTimeField('дата доставки', blank=True, null=True)
     status = models.CharField(max_length=15, choices=ORDER_STATUS_CHOICES, default='NEW',
                               db_index=True, verbose_name='Статус заказа')
-    payment_method = models.CharField(max_length=15, choices=ORDER_PAYMENT_METHOD_CHOICES, blank=True,
-                                      verbose_name='Способ оплаты')
+    payment_method = models.CharField(max_length=15, choices=ORDER_PAYMENT_METHOD_CHOICES, blank=False,
+                                      default='UNDEFINED', verbose_name='Способ оплаты')
     comment = models.TextField('комментарий', blank=True)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.SET_NULL, verbose_name='ресторан',
                                    related_name='orders', blank=True, null=True)
