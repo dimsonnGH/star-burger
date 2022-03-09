@@ -33,14 +33,22 @@
         <td>{{ item.firstname }} {{ item.lastname }}</td>
         <td>{{ item.phonenumber }}</td>
         <td>{{ item.address }}</td>
-        <td>{{ item.order_sum }}</td>
+        <td>{{ item.order_sum|stringformat:".2f" }}</td>
         <td>
+          {% if item.restaurants_count == 0 %}
+          Не найден
+          {% elif item.restaurants_count == 1 %}
+            {% for restaurant, distance in item.restaurants %}
+              {{ restaurant.name }} ({{ distance }} км)
+            {% endfor %}
+          {% else %}
           <details>
             <summary>Развернуть</summary>
               {% for restaurant, distance in item.restaurants %}
               <p>{{ restaurant.name }} ({{ distance }} км) </p>
               {% endfor %}
           </details>
+          {% endif %}
         </td>
         <td>{{ item.comment|truncatechars:50 }}</td>
         <td><a href="{% url 'admin:foodcartapp_order_change' item.id|urlencode %}?next={{ request.path|urlencode }}">Редактировать</a></td>
