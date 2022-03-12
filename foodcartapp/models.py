@@ -36,10 +36,11 @@ def fetch_coordinates(apikey, address):
 
 def get_address_coordinates(place_coordinates, address):
     coordinates = place_coordinates.get(address)
+    place_coordinates_modified = {**place_coordinates}
     if not coordinates:
         coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_KEY, address)
-        place_coordinates[address] = coordinates
-    return coordinates
+        place_coordinates_modified[address] = coordinates
+    return coordinates, place_coordinates_modified
 
 
 class Restaurant(models.Model):
@@ -175,7 +176,7 @@ class OrderQuerySet(models.QuerySet):
         for order in orders:
             order_restaurants = set()
             restaurants_with_distance = []
-            order_address_coordinates = get_address_coordinates(coordinates_cashe, order.address)
+            order_address_coordinates, coordinates_cashe = get_address_coordinates(coordinates_cashe, order.address)
             order_items = order.items.all()
             for order_item in order_items:
                 item_restaurants = [menu_item.restaurant for menu_item in menu_items if
@@ -186,7 +187,7 @@ class OrderQuerySet(models.QuerySet):
                     order_restaurants = set(item_restaurants)
 
             for restaurant in order_restaurants:
-                restorant_coordinates = get_address_coordinates(coordinates_cashe, restaurant.address)
+                restorant_coordinates, coordinates_cashe = get_address_coordinates(coordinates_cashe, restaurant.address)
                 if order_address_coordinates and restorant_coordinates:
                     distance_to = round(distance.distance(restorant_coordinates, order_address_coordinates).km, 2)
                 else:
