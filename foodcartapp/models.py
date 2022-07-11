@@ -26,10 +26,12 @@ def fetch_coordinates(apikey, address):
     found_places = response.json()['response']['GeoObjectCollection']['featureMember']
 
     if not found_places:
-        return None
+        lon = None
+        lat = None
+    else:
+        most_relevant = found_places[0]
+        lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
 
-    most_relevant = found_places[0]
-    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
     Location.objects.create(address=address, longitude=lon, latitude=lat)
     return lon, lat
 
