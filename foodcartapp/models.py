@@ -4,7 +4,7 @@ from django.core.validators import MinValueValidator
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 from geopy import distance
-from coordinates.geocoder_functions import get_address_coordinates
+from coordinates.geocoder_functions import get_address_coordinates, Location
 
 
 class Restaurant(models.Model):
@@ -136,11 +136,18 @@ class OrderQuerySet(models.QuerySet):
     def include_available_restaurants(self):
         menu_items = RestaurantMenuItem.objects.select_related('restaurant').filter(availability=True)
         orders = self.prefetch_related('items')
-        coordinates_cashe = {}
+
+        addresses_list = [order.address for order in orders]
+        addresses_list = addresses_list + [restaurant.address for restaurant in Restaurant.objects.all()]
+
+        locations = Location.objects.filter(address__in=set(addresses_list))
+        coordinates_cashe = {location.address: (location.longitude, location.latitude) for location in locations}
+
         for order in orders:
             order_restaurants = set()
             restaurants_with_distance = []
             order_address_coordinates, coordinates_cashe = get_address_coordinates(coordinates_cashe, order.address)
+
             order_items = order.items.all()
             for order_item in order_items:
                 item_restaurants = [menu_item.restaurant for menu_item in menu_items if
@@ -151,7 +158,8 @@ class OrderQuerySet(models.QuerySet):
                     order_restaurants = set(item_restaurants)
 
             for restaurant in order_restaurants:
-                restorant_coordinates, coordinates_cashe = get_address_coordinates(coordinates_cashe, restaurant.address)
+                restorant_coordinates, coordinates_cashe = get_address_coordinates(coordinates_cashe,
+                                                                                   restaurant.address)
                 if order_address_coordinates and restorant_coordinates:
                     distance_to = round(distance.distance(restorant_coordinates, order_address_coordinates).km, 2)
                 else:
