@@ -137,10 +137,10 @@ class OrderQuerySet(models.QuerySet):
         menu_items = RestaurantMenuItem.objects.select_related('restaurant').filter(availability=True)
         orders = self.prefetch_related('items')
 
-        addresses_list = [order.address for order in orders]
-        addresses_list = addresses_list + [restaurant.address for restaurant in Restaurant.objects.all()]
+        addresses = [order.address for order in orders]
+        addresses = addresses + [restaurant.address for restaurant in Restaurant.objects.all()]
 
-        locations = Location.objects.filter(address__in=set(addresses_list))
+        locations = Location.objects.filter(address__in=set(addresses))
         coordinates_cashe = {location.address: (location.longitude, location.latitude) for location in locations}
 
         for order in orders:
