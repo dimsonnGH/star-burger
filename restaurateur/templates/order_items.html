@@ -39,13 +39,13 @@
           Не найден
           {% elif item.restaurants_count == 1 %}
             {% for restaurant, distance in item.restaurants %}
-              {{ restaurant.name }} ({{ distance }} км)
+              {{ restaurant.name }} ({{ distance|default_if_none:'?' }} км)
             {% endfor %}
           {% else %}
           <details>
             <summary>Развернуть</summary>
               {% for restaurant, distance in item.restaurants %}
-              <p>{{ restaurant.name }} ({{ distance }} км) </p>
+              <p>{{ restaurant.name }} ({{ distance|default_if_none:'?' }} км) </p>
               {% endfor %}
           </details>
           {% endif %}

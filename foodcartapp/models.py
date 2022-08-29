@@ -146,6 +146,7 @@ class OrderQuerySet(models.QuerySet):
         for order in orders:
             order_restaurants = set()
             restaurants_with_distance = []
+            restaurants_with_unknown_distance = []
             order_address_coordinates, coordinates_cache = get_address_coordinates(coordinates_cache, order.address)
 
             order_items = order.items.all()
@@ -162,11 +163,12 @@ class OrderQuerySet(models.QuerySet):
                                                                                    restaurant.address)
                 if order_address_coordinates and restorant_coordinates:
                     distance_to = round(distance.distance(restorant_coordinates, order_address_coordinates).km, 2)
+                    restaurants_with_distance.append((restaurant, distance_to))
                 else:
-                    distance_to = "?"
-                restaurants_with_distance.append((restaurant, distance_to))
+                    restaurants_with_unknown_distance.append((restaurant, None))
 
-            order.restaurants = sorted(restaurants_with_distance, key=lambda item: item[1])
+            order.restaurants = sorted(restaurants_with_distance, key=lambda item: item[1]) \
+                                + restaurants_with_unknown_distance
             order.restaurants_count = len(order.restaurants)
 
         return orders

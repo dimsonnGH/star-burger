@@ -32,7 +32,7 @@ def fetch_coordinates(apikey, address):
 def get_address_coordinates(place_coordinates, address):
     coordinates = place_coordinates.get(address)
     place_coordinates_modified = {**place_coordinates}
-    if not coordinates:
+    if not coordinates and address:
         coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_KEY, address)
         place_coordinates_modified[address] = coordinates
     return coordinates, place_coordinates_modified
