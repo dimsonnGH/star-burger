@@ -29,10 +29,10 @@ def fetch_coordinates(apikey, address):
     return lon, lat
 
 
-def get_address_coordinates(place_coordinates, address):
-    coordinates = place_coordinates.get(address)
-    place_coordinates_modified = {**place_coordinates}
+def get_address_coordinates(address, cache_of_coordinates):
+    coordinates = cache_of_coordinates.get(address)
+    cache_of_coordinates_modified = {**cache_of_coordinates}
     if not coordinates and address:
         coordinates = fetch_coordinates(settings.YANDEX_GEOCODER_KEY, address)
-        place_coordinates_modified[address] = coordinates
-    return coordinates, place_coordinates_modified
+        cache_of_coordinates_modified[address] = coordinates
+    return coordinates, cache_of_coordinates_modified
