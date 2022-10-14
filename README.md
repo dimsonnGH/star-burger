@@ -132,6 +132,8 @@ Parcel будет следить за файлами в каталоге `bundle
 
 ## Как запустить prod-версию сайта
 
+Установить СУБД Postgres, если она еще не установлена. [Инструкция по установке](https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04)
+
 Собрать фронтенд:
 
 ```sh
@@ -145,11 +147,7 @@ parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `GEOCODER_KEY` — API ключ Яндекс-геокодера. [Инструкция по под подключению геокодера](https://dvmn.org/encyclopedia/api-docs/yandex-geocoder-api/).
 - `ROLLBAR_ACCESS_TOKEN` — токен системы логирования Rollbar, необходимо получить на [сайте](https://rollbar.com). При выборе SDK укзать Django и далее следовать инструкции по интеграции.
-
+- `DATABASE_URL` - URL подключения к базе данных согласно [схеме](https://github.com/jazzband/dj-database-url#url-schema)
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
-
-Где используется репозиторий:
-
-- Второй и третий урок [учебного модуля Django](https://dvmn.org/modules/django/)
