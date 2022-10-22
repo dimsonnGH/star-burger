@@ -6,7 +6,7 @@ import rollbar
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-env_path = os.path.join(BASE_DIR, 'venv\.env')
+env_path = os.path.join(BASE_DIR, 'venv', '.env')
 env = Env()
 env.read_env(env_path)
 
