@@ -21,7 +21,7 @@
 
 Скачайте код:
 ```sh
-git clone https://github.com/devmanorg/star-burger.git
+git clone https://github.com/dimsonnGH/star-burger
 ```
 
 Перейдите в каталог проекта:
@@ -131,7 +131,10 @@ Parcel будет следить за файлами в каталоге `bundle
 
 
 ## Как запустить prod-версию сайта
-
+Клонировать репозиторий на сервер:
+```sh
+git clone https://github.com/<Your project>
+```
 Установить СУБД Postgres, если она еще не установлена. [Инструкция по установке](https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04)
 
 Собрать фронтенд:
@@ -148,6 +151,54 @@ parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 - `GEOCODER_KEY` — API ключ Яндекс-геокодера. [Инструкция по под подключению геокодера](https://dvmn.org/encyclopedia/api-docs/yandex-geocoder-api/).
 - `ROLLBAR_ACCESS_TOKEN` — токен системы логирования Rollbar, необходимо получить на [сайте](https://rollbar.com). При выборе SDK укзать Django и далее следовать инструкции по интеграции.
 - `DATABASE_URL` - URL подключения к базе данных согласно [схеме](https://github.com/jazzband/dj-database-url#url-schema)
+
+Деплой изменений рекомендуется выполнять по следующей схеме
+
+- Выполнить коммит на компьютере разработчика.
+- выполнить
+```sh
+git push
+```
+- Заходите на сервер
+- Выполнить bash-скрипт деплоя. Содержание примерно следующее (здесь предусмотрен запуск скрипта не из каталога проекта).
+```sh
+#!/bin/bash
+set -e
+
+cd <Project folder>
+
+# activate virtual enviroment
+source venv/bin/activate
+
+# load repository
+git pull
+
+# load python libraries
+pip install -r requirements.txt
+
+# install node.js libraries
+npm install --dev
+
+# build js application
+parcel watch bundles-src/index.js --dist-dir bundles --public-url="./"
+
+# collect static files
+python3 manage.py collectstatic --noinput
+
+# run migrations
+python3 manage.py makemigrations
+python3 manage.py migrate
+
+#restart application
+systemctl restart star-burger.service
+
+#reload nginx
+systemctl reload nginx.service
+
+echo The deploy is done
+```
+
+
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
