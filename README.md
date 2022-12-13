@@ -150,8 +150,9 @@ parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 - `DEBUG` — дебаг-режим. Поставьте `False`.
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте. Не стоит использовать значение по-умолчанию, **замените на своё**.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
-- `GEOCODER_KEY` — API ключ Яндекс-геокодера. [Инструкция по под подключению геокодера](https://dvmn.org/encyclopedia/api-docs/yandex-geocoder-api/).
+- `YANDEX_GEOCODER_KEY` — API ключ Яндекс-геокодера. [Инструкция по под подключению геокодера](https://dvmn.org/encyclopedia/api-docs/yandex-geocoder-api/).
 - `ROLLBAR_ACCESS_TOKEN` — токен системы логирования Rollbar, необходимо получить на [сайте](https://rollbar.com). При выборе SDK укзать Django и далее следовать инструкции по интеграции.
+- `ROLLBAR_ENVIRONMENT` — параметр системы логирования Rollbar, указывающий в какой в какой среде произошло событие. Рекомендуемые значения: "production", "staging" , "qa" и т.п. [Подробнее](https://docs.rollbar.com/docs/environments).
 - `DATABASE_URL` - URL подключения к базе данных согласно [схеме](https://github.com/jazzband/dj-database-url#url-schema)
 
 Деплой изменений рекомендуется выполнять по следующей схеме
