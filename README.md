@@ -166,6 +166,7 @@ git push
 - Выполнить bash-скрипт деплоя. Содержание примерно следующее (здесь предусмотрен запуск скрипта не из каталога проекта).
 ```sh
 #!/bin/bash
+#stop if error
 set -e
 
 cd <Project folder>
@@ -183,14 +184,14 @@ pip install -r requirements.txt
 npm install --dev
 
 # build js application
-parcel watch bundles-src/index.js --dist-dir bundles --public-url="./"
+parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 
 # collect static files
 python3 manage.py collectstatic --noinput
 
 # run migrations
-python3 manage.py makemigrations
-python3 manage.py migrate
+python3 manage.py makemigrations --dry-run --check
+python3 manage.py migrate --noinput
 
 #restart application
 systemctl restart star-burger.service
