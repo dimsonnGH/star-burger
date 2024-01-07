@@ -1,7 +1,6 @@
 import os
 import dj_database_url
 from environs import Env
-import rollbar
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -10,7 +9,7 @@ env_path = os.path.join(BASE_DIR, '.env')
 env = Env()
 env.read_env(env_path)
 
-SECRET_KEY = env('SECRET_KEY', 'etirgvonenrfnoerngorenogneongg334g')
+SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', True)
 YANDEX_GEOCODER_KEY = env('YANDEX_GEOCODER_KEY')
 
