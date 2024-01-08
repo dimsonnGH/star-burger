@@ -155,51 +155,21 @@ parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
 - `ROLLBAR_ENVIRONMENT` — параметр системы логирования Rollbar, указывающий в какой в какой среде произошло событие. Рекомендуемые значения: "production", "staging" , "qa" и т.п. [Подробнее](https://docs.rollbar.com/docs/environments).
 - `DATABASE_URL` - URL подключения к базе данных согласно [схеме](https://github.com/jazzband/dj-database-url#url-schema)
 
-Деплой изменений рекомендуется выполнять по следующей схеме
+Установить флаг исполняемости для файла `star-burger-deploy.sh`, который будет использоваться для деплоя изменений в проекте.
+```sh
+chmod ugo+x star-burger-deploy.sh
+```
 
+Деплой изменений рекомендуется выполнять по следующей схеме:
 - Выполнить коммит на компьютере разработчика.
 - выполнить
 ```sh
 git push
 ```
-- Заходите на сервер
-- Выполнить bash-скрипт деплоя. Содержание примерно следующее (здесь предусмотрен запуск скрипта не из каталога проекта).
+- Зайти на продакшн сервер
+- Выполнить скрипт:
 ```sh
-#!/bin/bash
-#stop if error
-set -e
-
-cd <Project folder>
-
-# activate virtual enviroment
-source venv/bin/activate
-
-# load repository
-git pull
-
-# load python libraries
-pip install -r requirements.txt
-
-# install node.js libraries
-npm install --dev
-
-# build js application
-parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
-
-# collect static files
-python3 manage.py collectstatic --noinput
-
-# run migrations
-python3 manage.py makemigrations --dry-run --check
-python3 manage.py migrate --noinput
-
-#restart application
-systemctl restart star-burger.service
-
-#reload nginx
-systemctl reload nginx.service
-
-echo The deploy is done
+bash star-burger-deploy.sh
 ```
 
 
